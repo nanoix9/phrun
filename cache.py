@@ -9,11 +9,13 @@ import shutil
 from .log import logger
 
 DEFAULT_CACHE_DIR = os.path.join(os.path.expanduser('~'), '.phrun', 'cache')
+DEFAULT_CACHE_SUFFIX = '.cache'
 
 class Cache(object):
 
     _settings = {
-        'root_dir': DEFAULT_CACHE_DIR
+        'root_dir': DEFAULT_CACHE_DIR,
+        'cache_suffix': DEFAULT_CACHE_SUFFIX,
     }
     _caches = {}
 
@@ -34,13 +36,19 @@ class Cache(object):
         #else:
         #    raise RuntimeError('directory "%s" doesnt exists' % dirname)
 
-    def get(self, key):
+    def has(self, key):
         path = self._get_path(key)
-        data = None
-        if os.path.isfile(path):
+        return os.path.isfile(path)
+
+    def get(self, key):
+        if self.has(key):
+            path = self._get_path(key)
             with open(path, 'rb') as f:
                 data = pickle.load(f)
-        return data
+            return data
+        else:
+            raise RuntimeError('cache {} does not have key "{}"' \
+                .format(self._name, key))
 
     def clean(self, remove_dir=True):
         cdir = self._get_cache_dir()
@@ -51,7 +59,8 @@ class Cache(object):
             raise NotImplementedError()
 
     def _get_cache_dir(self):
-        return os.path.join(self._root_dir, self._name)
+        return os.path.join(self._root_dir,
+            self._name + self._get_setting('cache_suffix'))
 
     def _get_path(self, key):
         return os.path.join(self._get_cache_dir(), key)
