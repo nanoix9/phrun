@@ -12,17 +12,19 @@ NO_ARG = object()
 
 class Runner(object):
 
-    def __init__(self, cache_name=None):
+    def __init__(self):
         self._phases = []
         self._name_index_map = {}
-        self._cache_name = cache_name
-        self.setup_cache()
+        self._cache = None
 
-    def setup_cache(self):
-        if isinstance(self._cache_name, str) and self._cache_name != '':
-            self._cache = Cache.get_cache(self._cache_name)
+    def use_cache(self, cache=None):
+        if isinstance(cache, Cache):
+            self._cache = cache
+        elif isinstance(cache, str):
+            self._cache = Cache.get_cache(cache)
         else:
-            self._cache = None
+            raise ValueError('invalid cache: {}'.format(cache))
+        logger.info('using cache at {}'.format(self._cache._get_cache_dir()))
         return self
 
     def run(self, params=NO_ARG):
@@ -77,7 +79,7 @@ class Runner(object):
         return self
 
     def _cache_key(self, index):
-        return self.get_phase_by_index(index).name + ':out'
+        return self.get_phase_by_index(index).name + '.out'
 
     def get_phase_index(self, phase_name):
         if phase_name not in self._name_index_map:
@@ -104,7 +106,7 @@ class Runner(object):
                 func = args[1]
             elif len(args) == 1:
                 name = args[0].__name__
-                logger.warning('does not specify the phase name, use "{}" by default' \
+                logger.warning('phase name not specified, use "{}"' \
                     .format(name))
                 func = args[0]
             else:

@@ -23,6 +23,9 @@ def get_parser():
                         help="start running from which phase, specified by index")
     parser.add_argument("--cache-root", default='.',
                         help="cache root directory")
+    parser.add_argument("--cache-name", default='',
+                        help="cache root directory")
+
     return parser
 
 def parse_args(parser=None, argv=None):
@@ -41,14 +44,28 @@ class App(object):
         self._name = name
         self._args = parse_args()
         logger.info('command line arguments: {}'.format(self._args))
-        self._runner = Runner(cache_name='app')
 
-        Cache.set_root_dir(self._args.cache_root)
+        if self._args.cache_name != '':
+            cache_name = self._args.cache_name
+        else:
+            cache_name = self._name
+
+        if self._args.cache_root != '':
+            cache = Cache.get_cache(cache_name, root_dir=self._args.cache_root)
+        else:
+            cache = Cache.get_cache(cache_name)
+
+        self._runner = Runner().use_cache(cache)
 
     def get_runner(self):
         return self._runner
 
+    def add_phase(self, *args, **kwds):
+        self._runner.add_phase(*args, **kwds)
+        return self
+
     def run(self):
+
         if self._args.phase != '':
             return self._runner.run_from(self._args.phase)
         else:

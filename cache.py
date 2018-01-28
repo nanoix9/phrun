@@ -35,6 +35,8 @@ class Cache(object):
             pickle.dump(data, f)
         #else:
         #    raise RuntimeError('directory "%s" doesnt exists' % dirname)
+        logger.info('dump to cache file {}'.format(path))
+        return self
 
     def has(self, key):
         path = self._get_path(key)
@@ -45,6 +47,7 @@ class Cache(object):
             path = self._get_path(key)
             with open(path, 'rb') as f:
                 data = pickle.load(f)
+            logger.info('load from cache file {}'.format(path))
             return data
         else:
             raise RuntimeError('cache {} does not have key "{}"' \
@@ -81,6 +84,7 @@ class Cache(object):
 
     @classmethod
     def set_root_dir(cls, dir):
+        # print(dir)
         cls._set_setting('root_dir', dir)
 
     @classmethod

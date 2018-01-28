@@ -16,7 +16,7 @@ def test_cache():
     cache.clean()
 
 def test_runner():
-    r = Runner(cache_name='test_common')
+    r = Runner().use_cache('test_common')
     r.add_phase('src', lambda: (1, 2)) \
         .add_phase('add', lambda x: x[0] + x[1]) \
         .add_phase('pow', lambda x: x ** 2)
