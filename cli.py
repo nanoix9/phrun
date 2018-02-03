@@ -4,7 +4,7 @@
 import sys
 import argparse
 
-from .runner import Runner
+from .runner import Runner, NO_ARG
 from .cache import Cache
 from .log import logger
 
@@ -65,11 +65,15 @@ class App(object):
         return self
 
     def run(self):
+        if len(self._args.args) == 0:
+            args = NO_ARG
+        else:
+            args = self._args.args
 
         if self._args.phase != '':
-            return self._runner.run_from(self._args.phase)
+            return self._runner.run_from(self._args.phase, args)
         else:
-            return self._runner.run_from(self._args.phase_index)
+            return self._runner.run_from(self._args.phase_index, args)
 
 def test1():
     argv = '-v -d other another'.split()
