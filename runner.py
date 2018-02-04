@@ -17,7 +17,7 @@ class Runner(object):
         self._name_index_map = {}
         self._cache = None
 
-    def use_cache(self, cache=None):
+    def use_cache(self, cache=None, ignore_cache_failure=False):
         if isinstance(cache, Cache):
             self._cache = cache
         elif isinstance(cache, str):
@@ -25,6 +25,7 @@ class Runner(object):
         else:
             raise ValueError('invalid cache: {}'.format(cache))
         logger.info('using cache at {}'.format(self._cache._get_cache_dir()))
+        self.ignore_cache_failure = ignore_cache_failure
         return self
 
     def run(self, params=NO_ARG):
@@ -69,13 +70,28 @@ class Runner(object):
     def _get_from_cache(self, index):
         key = self._cache_key(index)
         if self._cache_enabled() and self._cache.has(key):
-            return self._cache.get(key)
+            try:
+                return self._cache.get(key)
+            except Exception as e:
+                if self.ignore_cache_failure:
+                    logger.warning('failed to read "%s" from cache "%s", message: %s', \
+                            key, self._cache.name, repr(e))
+                else:
+                    raise
         else:
             return NO_ARG
 
     def _set_to_cache(self, index, value):
         if self._cache_enabled():
-            self._cache.set(self._cache_key(index), value)
+            key = self._cache_key(index)
+            try:
+                self._cache.set(key, value)
+            except Exception as e:
+                if self.ignore_cache_failure:
+                    logger.warning('failed to write "%s" to cache "%s", message: %s', \
+                            key, self._cache.name, repr(e))
+                else:
+                    raise
         return self
 
     def _cache_key(self, index):

@@ -25,6 +25,8 @@ def get_parser():
                         help="cache root directory")
     parser.add_argument("--cache-name", default='',
                         help="cache root directory")
+    parser.add_argument('--ignore-cache-failure', action='store_true',
+                        help="ignore cache failue")
 
     return parser
 
@@ -55,7 +57,8 @@ class App(object):
         else:
             cache = Cache.get_cache(cache_name)
 
-        self._runner = Runner().use_cache(cache)
+        self._runner = Runner().use_cache(cache,
+                ignore_cache_failure=self._args.ignore_cache_failure)
 
     def get_runner(self):
         return self._runner

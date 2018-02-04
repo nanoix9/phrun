@@ -25,7 +25,12 @@ class Cache(object):
         self._name = name
         self._root_dir = root_dir
 
+    @property
+    def name(self):
+        return self._name
+
     def set(self, key, data):
+        # print(key, data)
         path = self._get_path(key)
         dirname = os.path.dirname(path)
         if not os.path.isdir(dirname):
