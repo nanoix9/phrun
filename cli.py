@@ -25,7 +25,9 @@ def get_parser():
                         help="cache root directory")
     parser.add_argument("--cache-name", default='',
                         help="cache root directory")
-    parser.add_argument('--ignore-cache-failure', action='store_true',
+    parser.add_argument('--cache-failure', type=str,
+                        choices=['strict', 'ignore'],
+                        default='ignore',
                         help="ignore cache failue")
 
     return parser
@@ -58,7 +60,7 @@ class App(object):
             cache = Cache.get_cache(cache_name)
 
         self._runner = Runner().use_cache(cache,
-                ignore_cache_failure=self._args.ignore_cache_failure)
+                ignore_cache_failure=self._args.cache_failure == 'ignore')
 
     def get_runner(self):
         return self._runner
@@ -82,6 +84,10 @@ def test1():
     argv = '-v -d other another'.split()
     print(argv, parse_args(argv=argv))
     argv = '-vvv -d'.split()
+    print(argv, parse_args(argv=argv))
+    argv = '-vvv --cache-failure strict'.split()
+    print(argv, parse_args(argv=argv))
+    argv = '-vvv --cache-failure invalid'.split()
     print(argv, parse_args(argv=argv))
 
 def main():
