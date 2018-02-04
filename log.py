@@ -7,6 +7,7 @@ import logging
 
 logger = logging.getLogger("phrun")
 logger.setLevel(logging.DEBUG)
+logger.propagate = False
 
 # create file handler which logs even debug messages
 #fh = logging.FileHandler("spam.log")
