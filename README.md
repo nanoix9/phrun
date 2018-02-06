@@ -19,23 +19,28 @@ from the very beginning.
 
 # Examples
 
+This piece of code calculates the `(x + y)` ^ 2 for two inputs `x` and `y`
 ```py
 import phrun
 
 app = phrun.App('foo')
 app.get_runner() \
-    .add_phase('src', lambda: (1, 2)) \
-    .add_phase('add', lambda x: x[0] + x[1]) \
-    .add_phase('pow', lambda x: x ** 2)
+        .add_phase('src', lambda param: [int(i) for i in param]) \
+        .add_phase('add', lambda x: x[0] + x[1]) \
+        .add_phase('pow', lambda x: x ** 2) \
+        .add_phase('print', lambda x: print(x))
+
+app.run()
 ```
 
 and run the following command
 
 ```bash
-python foo.py 
+python example/foo.py 10 20
 ```
 
 Next time you can run it from the second, i.e., 'add' phase via 
 `python foo.py -p add` or `python foo.py -i 1`
 
-try `python foo.py -h` for more options
+try `python example/foo.py -h` for more options
+
